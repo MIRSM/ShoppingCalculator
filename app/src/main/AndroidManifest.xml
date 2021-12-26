@@ -10,6 +10,10 @@
             android:supportsRtl="true"
             android:theme="@style/Theme.ShoppingCalculator">
         <activity
+                android:name=".EditActivity"
+                android:parentActivityName=".MainActivity"
+                android:exported="true"/>
+        <activity
                 android:name=".ProductsActivity"
                 android:exported="true"/>
         <activity
