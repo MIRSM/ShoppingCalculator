@@ -2,8 +2,6 @@ package com.example.shoppingcalculator
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
@@ -70,6 +68,8 @@ class EditActivity : AppCompatActivity() {
             {
                 imageView.setImageURI(oldProductImage)
             }
+        }else{
+            imageView.setImageResource(R.drawable.placeholder)
         }
 
          resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -80,6 +80,11 @@ class EditActivity : AppCompatActivity() {
                 imageView.setImageURI(newImageUri)
             }
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 
     override fun onBackPressed() {
@@ -97,24 +102,30 @@ class EditActivity : AppCompatActivity() {
         {
             setResult(RESULT_CANCELED)
         }else if(product == null){
-            product = Product(editName.text.toString(),
-                editCount.text.toString().toFloat(),
-                editPrice.text.toString().toFloat(),
-                newImageUri
-            )
-
+//            product = Product(editName.text.toString(),
+//                editCount.text.toString().toFloat(),
+//                editPrice.text.toString().toFloat())
+//            product?.imagePath = newImageUri
             val resultIntent = Intent()
-            resultIntent.putExtra("result",product)
+            resultIntent.putExtra("name",editName.text.toString())
+            resultIntent.putExtra("count",editCount.text.toString())
+            resultIntent.putExtra("price",editPrice.text.toString())
+            resultIntent.putExtra("imageUri",newImageUri.toString())
 
             setResult(RESULT_FIRST_USER,resultIntent)
         }else{
-            product?.name = editName.text.toString()
-            product?.price = editPrice.text.toString().toFloat()
-            product?.count = editCount.text.toString().toFloat()
-            product?.imagePath = newImageUri
+            //product?.name = editName.text.toString()
+            //product?.price = editPrice.text.toString().toFloat()
+            //product?.count = editCount.text.toString().toFloat()
+            //product?.imagePath = newImageUri
 
             val resultIntent = Intent()
-            resultIntent.putExtra("result",product)
+            //resultIntent.putExtra("result",product)
+            resultIntent.putExtra("name",editName.text.toString())
+            resultIntent.putExtra("count",editCount.text.toString())
+            resultIntent.putExtra("price",editPrice.text.toString())
+            resultIntent.putExtra("imageUri",newImageUri.toString())
+            resultIntent.putExtra("tableId",product?.tableId)
 
             setResult(2,resultIntent)
         }

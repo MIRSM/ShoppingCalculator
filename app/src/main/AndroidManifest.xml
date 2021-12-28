@@ -14,9 +14,6 @@
                 android:parentActivityName=".MainActivity"
                 android:exported="true"/>
         <activity
-                android:name=".ProductsActivity"
-                android:exported="true"/>
-        <activity
                 android:name=".MainActivity"
                 android:exported="true">
             <intent-filter>

@@ -1,18 +1,16 @@
 package com.example.shoppingcalculator
 
 import android.content.Intent
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
 
 
-class RecyclerProductAdapter(public var listOfProduct: ArrayList<Product>, var parent : MainActivity) :RecyclerView.Adapter<RecyclerProductAdapter.ViewHolder>() {
+class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var parent : MainActivity) :RecyclerView.Adapter<RecyclerProductAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerProductAdapter.ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.product_card_layout,parent,false)
@@ -23,7 +21,10 @@ class RecyclerProductAdapter(public var listOfProduct: ArrayList<Product>, var p
         holder.itemName.text = listOfProduct[position].name
         holder.itemVal.text = listOfProduct[position].totalVal.toString()
         holder.itemPrice.text = listOfProduct[position].price.toString()
-        holder.itemImage.setImageURI(listOfProduct[position].imagePath)
+        if(listOfProduct[position].imagePath?.toString() != "null")
+            holder.itemImage.setImageURI(listOfProduct[position].imagePath)
+        else
+            holder.itemImage.setImageResource(R.drawable.placeholder)
         holder.itemCount.text = listOfProduct[position].count.toString()
 
         holder.localProduct = listOfProduct[position]
@@ -56,12 +57,12 @@ class RecyclerProductAdapter(public var listOfProduct: ArrayList<Product>, var p
         }
     }
 
-    public fun addProduct(product: Product){
+    fun addProduct(product: Product){
         listOfProduct.add(product)
         notifyDataSetChanged()
     }
 
-    public fun editProduct(product: Product){
+    fun editProduct(product: Product){
         val index = listOfProduct.indexOf(product)
         listOfProduct[index] = product
         notifyDataSetChanged()
