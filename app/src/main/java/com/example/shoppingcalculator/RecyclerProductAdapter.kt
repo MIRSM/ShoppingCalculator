@@ -51,7 +51,15 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
             itemView.setOnClickListener{
                 //переход на страницу редактирования продукта
                 val intent =  Intent(parent, EditActivity::class.java)
-                intent.putExtra("product",localProduct)
+                intent.putExtra(Constants.NAME_KEY,localProduct.name)
+                intent.putExtra(Constants.COUNT_KEY,localProduct.count)
+                intent.putExtra(Constants.PRICE_KEY,localProduct.price)
+                intent.putExtra(Constants.IMAGEPATH_KEY,localProduct.imagePath)
+                intent.putExtra(Constants.TABLEID_KEY,localProduct.tableId)
+                if(localProduct.location != null){
+                    intent.putExtra(Constants.LATITUDE_KEY,localProduct.location?.latitude)
+                    intent.putExtra(Constants.LONGITUDE_KEY,localProduct.location?.longitude)
+                }
                 startActivity(parent, intent,null)
             }
         }
@@ -63,7 +71,11 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
     }
 
     fun editProduct(product: Product){
-        val index = listOfProduct.indexOf(product)
+
+        val index = listOfProduct.indexOfFirst {
+            it.tableId ==  product.tableId
+        }
+
         listOfProduct[index] = product
         notifyDataSetChanged()
     }
