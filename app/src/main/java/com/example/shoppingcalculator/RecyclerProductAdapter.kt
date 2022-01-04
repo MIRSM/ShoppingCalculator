@@ -1,13 +1,16 @@
 package com.example.shoppingcalculator
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.startActivity
 import androidx.recyclerview.widget.RecyclerView
+import com.squareup.picasso.Picasso
 
 
 class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var parent : MainActivity) :RecyclerView.Adapter<RecyclerProductAdapter.ViewHolder>() {
@@ -21,10 +24,15 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
         holder.itemName.text = listOfProduct[position].name
         holder.itemVal.text = listOfProduct[position].totalVal.toString()
         holder.itemPrice.text = listOfProduct[position].price.toString()
-        if(listOfProduct[position].imagePath?.toString() != "null")
-            holder.itemImage.setImageURI(listOfProduct[position].imagePath)
+        if((ContextCompat.checkSelfPermission(parent ,android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
+            listOfProduct[position].imagePath != null)
+        {
+            //parent.contentResolver.takePersistableUriPermission(listOfProduct[position].imagePath,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            //Picasso.get().load(listOfProduct[position].imagePath).placeholder(R.drawable.placeholder).error(R.drawable.ic_action_name).into(holder.itemImage)
+            holder.itemImage.setImageBitmap(listOfProduct[position].imagePath?.let { Converters.toBitmap(it) })
+        }
         else
-            holder.itemImage.setImageResource(R.drawable.placeholder)
+            Picasso.get().load(R.drawable.placeholder).into(holder.itemImage)
         holder.itemCount.text = listOfProduct[position].count.toString()
 
         holder.localProduct = listOfProduct[position]
@@ -60,23 +68,13 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
                     intent.putExtra(Constants.LATITUDE_KEY,localProduct.location?.latitude)
                     intent.putExtra(Constants.LONGITUDE_KEY,localProduct.location?.longitude)
                 }
-                startActivity(parent, intent,null)
+                parent.resultLauncher.launch(intent,null)
             }
         }
     }
 
-    fun addProduct(product: Product){
-        listOfProduct.add(product)
-        notifyDataSetChanged()
-    }
-
-    fun editProduct(product: Product){
-
-        val index = listOfProduct.indexOfFirst {
-            it.tableId ==  product.tableId
-        }
-
-        listOfProduct[index] = product
+    fun updateList(newList: ArrayList<Product>){
+        listOfProduct = newList
         notifyDataSetChanged()
     }
 }

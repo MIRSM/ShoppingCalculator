@@ -1,6 +1,6 @@
 package com.example.shoppingcalculator
 
-final class Constants {
+class Constants {
 
     companion object{
         var MAPVIEW_BUNDLE_KEY : String = "MapViewBundleKey"
@@ -11,6 +11,9 @@ final class Constants {
         var TABLEID_KEY : String = "tableId"
         var LATITUDE_KEY : String = "latitude"
         var LONGITUDE_KEY : String = "longitude"
+
+        var DATABASE_NAME : String = "Products.db"
+        var DATABASE_VERSION : Int = 1
     }
 
 

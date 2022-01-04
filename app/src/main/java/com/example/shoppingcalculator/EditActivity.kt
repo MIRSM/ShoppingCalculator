@@ -4,6 +4,9 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
@@ -11,6 +14,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -20,6 +24,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.textfield.TextInputEditText
+import com.squareup.picasso.Picasso
+import java.io.File
 
 class EditActivity : AppCompatActivity(),OnMapReadyCallback {
 
@@ -37,12 +43,14 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
     private var oldProductPrice : Float? = null
     private var oldProductCount : Float? = null
     private var oldProductImage : String? = null
-    private var oldProductImageUri : Uri? = null
+    //private var oldProductImageUri : Uri? = null
     private var oldProductTableId : Int? = null
     private var oldProductLocation : LatLng? = null
 
     private var newProductLocation : LatLng? = null
     private var newImageUri : Uri? = null
+    private var oldBitmap : Bitmap? = null
+    private var newBitmap : Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,10 +61,11 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
                 oldProductCount =intent.getFloatExtra(Constants.COUNT_KEY,0f)
                 oldProductPrice = intent.getFloatExtra(Constants.PRICE_KEY,0f)
                 oldProductTableId = intent.getIntExtra(Constants.TABLEID_KEY,-1)
-                oldProductImage = intent.getStringExtra(Constants.IMAGEPATH_KEY)
                 oldProductLocation = LatLng(intent.getDoubleExtra(Constants.LATITUDE_KEY, 0.0),
                     intent.getDoubleExtra(Constants.LONGITUDE_KEY,0.0))
-                oldProductImageUri = Uri.parse(oldProductImage)
+                oldBitmap = intent.getByteArrayExtra(Constants.IMAGEPATH_KEY)?.let {
+                    Converters.toBitmap(it) }
+                //oldProductImageUri = Uri.parse(oldProductImage)
             }
         }catch (ex : Exception){
             // product не был передан
@@ -92,20 +101,26 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
             editName.setText(oldProductName)
             editPrice.setText(oldProductPrice.toString())
             editCount.setText(oldProductCount.toString())
-            if(oldProductImage != null)
+            if(oldBitmap != null)
             {
-                imageView.setImageURI(oldProductImageUri)
+                //parent.contentResolver.takePersistableUriPermission(oldProductImageUri!!,Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                //Picasso.get().load(oldBitmap).placeholder(R.drawable.placeholder).error(R.drawable.ic_action_name).into(imageView)
+                imageView.setImageBitmap(oldBitmap)
+                newBitmap = oldBitmap
             }
         }else{
-            imageView.setImageResource(R.drawable.placeholder)
+            Picasso.get().load(R.drawable.placeholder).into(imageView)
         }
 
          resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 result ->
-            if(result.resultCode == Activity.RESULT_OK){
+            if(result.resultCode == RESULT_OK){
                 val data: Intent? = result.data
                 newImageUri = data?.data
+                //Picasso.get().load(newImageUri).placeholder(R.drawable.placeholder).into(imageView)
                 imageView.setImageURI(newImageUri)
+                newBitmap = imageView.drawable.toBitmap()
+                //
             }
         }
     }
@@ -213,7 +228,7 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
             oldProductName == editName.text.toString() &&
             oldProductPrice == editPrice.text.toString().toFloat() &&
             oldProductCount == editCount.text.toString().toFloat() &&
-            oldProductImageUri == newImageUri &&
+            oldBitmap == newBitmap &&
             oldProductLocation == newProductLocation)
         {
             setResult(RESULT_CANCELED)
@@ -222,23 +237,29 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
             resultIntent.putExtra(Constants.NAME_KEY,editName.text.toString())
             resultIntent.putExtra(Constants.COUNT_KEY,editCount.text.toString())
             resultIntent.putExtra(Constants.PRICE_KEY,editPrice.text.toString())
-            resultIntent.putExtra(Constants.IMAGEPATH_KEY,newImageUri.toString())
+
+            resultIntent.putExtra(Constants.IMAGEPATH_KEY,Converters.fromBitmap(newBitmap!!))
+
             if(newProductLocation != null){
                 resultIntent.putExtra(Constants.LATITUDE_KEY,newProductLocation?.latitude)
                 resultIntent.putExtra(Constants.LONGITUDE_KEY,newProductLocation?.longitude)
             }
-
             setResult(RESULT_FIRST_USER,resultIntent)
         }else{
             val resultIntent = Intent()
             resultIntent.putExtra(Constants.NAME_KEY,editName.text.toString())
             resultIntent.putExtra(Constants.COUNT_KEY,editCount.text.toString())
             resultIntent.putExtra(Constants.PRICE_KEY,editPrice.text.toString())
-            resultIntent.putExtra(Constants.IMAGEPATH_KEY,newImageUri.toString())
+
+            resultIntent.putExtra(Constants.IMAGEPATH_KEY,Converters.fromBitmap(newBitmap!!))
+
             resultIntent.putExtra(Constants.TABLEID_KEY,oldProductTableId)
             if(newProductLocation != null){
                 resultIntent.putExtra(Constants.LATITUDE_KEY,newProductLocation?.latitude)
                 resultIntent.putExtra(Constants.LONGITUDE_KEY,newProductLocation?.longitude)
+            }else{
+                resultIntent.putExtra(Constants.LATITUDE_KEY,oldProductLocation?.latitude)
+                resultIntent.putExtra(Constants.LONGITUDE_KEY,oldProductLocation?.longitude)
             }
 
             setResult(2,resultIntent)
@@ -247,8 +268,9 @@ class EditActivity : AppCompatActivity(),OnMapReadyCallback {
     }
 
     private fun pickImageGallery(){
-        val intent = Intent(Intent.ACTION_PICK)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "image/*"
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         resultLauncher.launch(intent)
     }
 }
