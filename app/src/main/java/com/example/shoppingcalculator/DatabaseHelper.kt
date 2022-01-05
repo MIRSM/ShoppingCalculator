@@ -49,9 +49,9 @@ class DatabaseHelper(private var context: Context?) :
 
         val result = db.insert(TABLE_NAME,null,cv)
         if(result.toInt() == -1){
-            Toast.makeText(context,"Ошибка при добавлении в БД", Toast.LENGTH_SHORT)
+            Toast.makeText(context,"Ошибка при добавлении в БД", Toast.LENGTH_SHORT).show()
         }else{
-            Toast.makeText(context,"Запись успешно добавлена в БД", Toast.LENGTH_SHORT)
+            Toast.makeText(context,"Запись успешно добавлена в БД", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -80,9 +80,20 @@ class DatabaseHelper(private var context: Context?) :
         }
         val result = db.update(TABLE_NAME,cv,"_id=?",Array(1){ product.tableId.toString() })
         if(result == -1){
-           Toast.makeText(context,"Не удалось обновить данные в БД",Toast.LENGTH_SHORT)
+           Toast.makeText(context,"Не удалось обновить данные в БД",Toast.LENGTH_SHORT).show()
         }else{
-            Toast.makeText(context,"Данные успешно обновлены в БД",Toast.LENGTH_SHORT)
+            Toast.makeText(context,"Данные успешно обновлены в БД",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun deleteData(product: Product){
+        val db = this.writableDatabase
+
+        val result = db.delete(TABLE_NAME,"_id=?", Array(1){product.tableId.toString()})
+        if(result == -1){
+            Toast.makeText(context,"Не удалось удалить данные из БД",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(context,"Данные успешно удалены из БД",Toast.LENGTH_SHORT).show()
         }
     }
 }

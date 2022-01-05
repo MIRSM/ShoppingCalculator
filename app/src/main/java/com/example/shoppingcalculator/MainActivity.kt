@@ -47,9 +47,7 @@ class MainActivity : AppCompatActivity() {
 
         val recyclerView : RecyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = layoutManager
-
         adapter = RecyclerProductAdapter(listOfProduct, this)
-
         recyclerView.adapter = adapter
 
         resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -68,7 +66,6 @@ class MainActivity : AppCompatActivity() {
                     val longitude = data.getDoubleExtra(Constants.LONGITUDE_KEY,0.0)
                     product.location = LatLng(latitude,longitude)
                 }
-
                 product.imagePath = imagePath
                 product.tableId = tableId
 
@@ -88,7 +85,6 @@ class MainActivity : AppCompatActivity() {
                     val longitude = data.getDoubleExtra(Constants.LONGITUDE_KEY,0.0)
                     product.location = LatLng(latitude,longitude)
                 }
-
                 product.imagePath = imagePath
 
                 db.addProduct(product)
@@ -97,6 +93,7 @@ class MainActivity : AppCompatActivity() {
             (adapter as RecyclerProductAdapter).updateList(listOfProduct)
         }
 
+        // инициализация аудио
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -107,6 +104,7 @@ class MainActivity : AppCompatActivity() {
 
         val addButton : FloatingActionButton = findViewById(R.id.floatingActionButton)
         addButton.setOnClickListener {
+            // проиграть звук при нажатии кнопки
             playSound()
             //переход на страницу редактирования продукта
             val intent =  Intent(this, EditActivity::class.java)
@@ -143,5 +141,11 @@ class MainActivity : AppCompatActivity() {
                 listOfProduct.add(product)
             }
         }
+    }
+
+    fun deleteProduct(product: Product){
+        db.deleteData(product)
+        storeProductsInList()
+        (adapter as RecyclerProductAdapter).updateList(listOfProduct)
     }
 }

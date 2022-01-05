@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -27,14 +28,12 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
         if((ContextCompat.checkSelfPermission(parent ,android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
             listOfProduct[position].imagePath != null)
         {
-            //parent.contentResolver.takePersistableUriPermission(listOfProduct[position].imagePath,Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            //Picasso.get().load(listOfProduct[position].imagePath).placeholder(R.drawable.placeholder).error(R.drawable.ic_action_name).into(holder.itemImage)
             holder.itemImage.setImageBitmap(listOfProduct[position].imagePath?.let { Converters.toBitmap(it) })
         }
         else
-            Picasso.get().load(R.drawable.placeholder).into(holder.itemImage)
-        holder.itemCount.text = listOfProduct[position].count.toString()
+            holder.itemImage.setImageResource(R.drawable.placeholder)
 
+        holder.itemCount.text = listOfProduct[position].count.toString()
         holder.localProduct = listOfProduct[position]
     }
 
@@ -48,6 +47,7 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
         var itemPrice : TextView
         var itemVal : TextView
         var itemCount : TextView
+        var itemDelete : ImageButton
         lateinit var localProduct : Product
 
         init {
@@ -56,6 +56,12 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
             itemPrice = itemView.findViewById(R.id.item_price)
             itemVal = itemView.findViewById(R.id.item_val)
             itemCount = itemView.findViewById(R.id.item_count)
+            itemDelete = itemView.findViewById(R.id.item_delete)
+
+            itemDelete.setOnClickListener {
+                parent.deleteProduct(localProduct)
+            }
+
             itemView.setOnClickListener{
                 //переход на страницу редактирования продукта
                 val intent =  Intent(parent, EditActivity::class.java)
