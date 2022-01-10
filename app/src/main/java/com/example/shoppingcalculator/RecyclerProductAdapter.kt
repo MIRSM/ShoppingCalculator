@@ -23,8 +23,8 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
 
     override fun onBindViewHolder(holder: RecyclerProductAdapter.ViewHolder, position: Int) {
         holder.itemName.text = listOfProduct[position].name
-        holder.itemVal.text = listOfProduct[position].totalVal.toString()
-        holder.itemPrice.text = listOfProduct[position].price.toString()
+        holder.itemVal.text = "Стоимость: ${listOfProduct[position].totalVal}"
+        holder.itemPrice.text = "Цена: ${listOfProduct[position].price}"
         if((ContextCompat.checkSelfPermission(parent ,android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) &&
             listOfProduct[position].imagePath != null)
         {
@@ -33,7 +33,7 @@ class RecyclerProductAdapter(private var listOfProduct: ArrayList<Product>, var 
         else
             holder.itemImage.setImageResource(R.drawable.placeholder)
 
-        holder.itemCount.text = listOfProduct[position].count.toString()
+        holder.itemCount.text ="Количество: ${listOfProduct[position].count}"
         holder.localProduct = listOfProduct[position]
     }
 
